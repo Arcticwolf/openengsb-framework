@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.openengsb.core.api.model.OpenEngSBModel;
 import org.openengsb.core.api.model.OpenEngSBModelEntry;
 import org.openengsb.core.util.ModelUtils;
+import org.openengsb.labs.delegation.service.Provide;
 import org.osgi.framework.Version;
 
 public class ManipulationUtilsTest {
@@ -37,6 +38,12 @@ public class ManipulationUtilsTest {
         TestModel model = new TestModel();
         assertThat("TestModel isn't enhanced. Maybe you forgot to set the java agent?",
             model instanceof OpenEngSBModel, is(true));
+    }
+    
+    @Test
+    public void testIfProvideAnnotationIsPresent_shouldWork() throws Exception {
+        TestModel model = new TestModel();
+        assertThat(model.getClass().getAnnotation(Provide.class) != null, is(true));
     }
 
     @Test

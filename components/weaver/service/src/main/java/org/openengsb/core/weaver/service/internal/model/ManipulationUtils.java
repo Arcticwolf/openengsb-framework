@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.openengsb.core.api.Constants;
 import org.openengsb.core.api.model.FileWrapper;
 import org.openengsb.core.api.model.OpenEngSBModel;
 import org.openengsb.core.api.model.OpenEngSBModelEntry;
@@ -44,6 +45,12 @@ import javassist.CtPrimitiveType;
 import javassist.LoaderClassPath;
 import javassist.Modifier;
 import javassist.NotFoundException;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ConstPool;
+import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.ArrayMemberValue;
+import javassist.bytecode.annotation.MemberValue;
+import javassist.bytecode.annotation.StringMemberValue;
 
 /**
  * This util class does the byte code manipulation to enhance domain models. It uses Javassist as code manipulation
@@ -160,13 +167,31 @@ public final class ManipulationUtils {
         addRetrieveInternalModelTimestamp(cc);
         addRetrieveInternalModelVersion(cc);
         addGetOpenEngSBModelEntries(cc);
+        addAnnotation(cc);
         cc.setModifiers(cc.getModifiers() & ~Modifier.ABSTRACT);
+    }
+
+    /**
+     * Adds the Provide annotation to the class
+     */
+    private static void addAnnotation(CtClass clazz) throws CannotCompileException, NotFoundException {
+        ConstPool constPool = clazz.getClassFile().getConstPool();
+        AnnotationsAttribute attr = new AnnotationsAttribute(constPool, AnnotationsAttribute.visibleTag);
+        Annotation provide = new Annotation(constPool, cp.get("org.openengsb.labs.delegation.service.Provide"));
+        ArrayMemberValue array = new ArrayMemberValue(constPool);
+        array.setValue(new MemberValue[]{ new StringMemberValue(Constants.DELEGATION_CONTEXT_MODELS, constPool) });
+        provide.addMemberValue("context", array);
+        array = new ArrayMemberValue(constPool);
+        array.setValue(new MemberValue[0]);
+        provide.addMemberValue("alias", array);
+        attr.setAnnotation(provide);
+        clazz.getClassFile().addAttribute(attr);
     }
 
     /**
      * Adds the fields for the model tail and the logger to the class.
      */
-    private static void addFields(CtClass clazz) throws CannotCompileException, NotFoundException {        
+    private static void addFields(CtClass clazz) throws CannotCompileException, NotFoundException {
         CtField tail = CtField.make(String.format("private Map %s = new HashMap();", TAIL_FIELD), clazz);
         clazz.addField(tail);
         String loggerDefinition = "private static final Logger %s = LoggerFactory.getLogger(%s.class.getName());";
