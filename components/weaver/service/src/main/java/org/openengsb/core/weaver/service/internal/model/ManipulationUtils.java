@@ -258,7 +258,8 @@ public final class ManipulationUtils {
     /**
      * Adds the addOpenEngSBModelEntry method to the class.
      */
-    private static void addAddOpenEngSBModelEntryMethod(CtClass clazz) throws NotFoundException, CannotCompileException {
+    private static void addAddOpenEngSBModelEntryMethod(CtClass clazz)
+        throws NotFoundException, CannotCompileException {
         CtClass[] params = generateClassField(OpenEngSBModelEntry.class);
         CtMethod method = new CtMethod(CtClass.voidType, "addOpenEngSBModelEntry", params, clazz);
         StringBuilder builder = new StringBuilder();

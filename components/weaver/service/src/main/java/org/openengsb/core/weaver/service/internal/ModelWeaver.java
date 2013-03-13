@@ -57,6 +57,7 @@ public class ModelWeaver implements WeavingHook {
             if (result != null) {
                 wovenClass.getDynamicImports().add("org.openengsb.core.api.model");
                 wovenClass.getDynamicImports().add("org.slf4j");
+                wovenClass.getDynamicImports().add("org.openengsb.labs.delegation.service");
                 wovenClass.setBytes(result);
             }
             LOGGER.trace("finished enhancing {}", className);
