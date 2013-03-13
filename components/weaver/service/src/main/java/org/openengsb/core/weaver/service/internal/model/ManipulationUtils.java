@@ -154,7 +154,7 @@ public final class ManipulationUtils {
         addSetOpenEngSBModelTail(cc);
         addRetrieveModelName(cc);
         addRetrieveModelVersion(cc, modelVersion);
-        addOpenEngSBModelEntryMethod(cc);
+        addAddOpenEngSBModelEntryMethod(cc);
         addRemoveOpenEngSBModelEntryMethod(cc);
         addRetrieveInternalModelId(cc);
         addRetrieveInternalModelTimestamp(cc);
@@ -166,7 +166,7 @@ public final class ManipulationUtils {
     /**
      * Adds the fields for the model tail and the logger to the class.
      */
-    private static void addFields(CtClass clazz) throws CannotCompileException, NotFoundException {
+    private static void addFields(CtClass clazz) throws CannotCompileException, NotFoundException {        
         CtField tail = CtField.make(String.format("private Map %s = new HashMap();", TAIL_FIELD), clazz);
         clazz.addField(tail);
         String loggerDefinition = "private static final Logger %s = LoggerFactory.getLogger(%s.class.getName());";
@@ -197,7 +197,8 @@ public final class ManipulationUtils {
         builder.append(createTrace("Called setOpenEngSBModelTail"));
         builder.append("if($1 != null) {for(int i = 0; i < $1.size(); i++) {");
         builder.append("OpenEngSBModelEntry entry = (OpenEngSBModelEntry) $1.get(i);");
-        builder.append(TAIL_FIELD).append(".put(entry.getKey(), entry); } }");
+        builder.append("String temp = entry.getKey();");
+        builder.append(TAIL_FIELD).append(".put(temp, entry); } }");
         method.setBody(createMethodBody(builder.toString()));
         clazz.addMethod(method);
     }
@@ -232,12 +233,13 @@ public final class ManipulationUtils {
     /**
      * Adds the addOpenEngSBModelEntry method to the class.
      */
-    private static void addOpenEngSBModelEntryMethod(CtClass clazz) throws NotFoundException, CannotCompileException {
+    private static void addAddOpenEngSBModelEntryMethod(CtClass clazz) throws NotFoundException, CannotCompileException {
         CtClass[] params = generateClassField(OpenEngSBModelEntry.class);
         CtMethod method = new CtMethod(CtClass.voidType, "addOpenEngSBModelEntry", params, clazz);
         StringBuilder builder = new StringBuilder();
         builder.append(createTrace("Called addOpenEngSBModelEntry"));
-        builder.append("if ($1 != null) { ").append(TAIL_FIELD).append(".put($1.getKey(), $1);}");
+        builder.append("if ($1 != null) { ").append("String key = $1.getKey();").append(TAIL_FIELD);
+        builder.append(".put(key, $1);}");
         method.setBody(createMethodBody(builder.toString()));
         clazz.addMethod(method);
     }
@@ -317,7 +319,7 @@ public final class ManipulationUtils {
     }
 
     /**
-     * Adds the getOpenEngSBModelEntries method to the class.
+     * Adds the toOpenEngSBModelEntries method to the class.
      */
     private static void addGetOpenEngSBModelEntries(CtClass clazz) throws NotFoundException,
         CannotCompileException, ClassNotFoundException {
@@ -362,6 +364,8 @@ public final class ManipulationUtils {
         StringBuilder builder = new StringBuilder();
         CtClass fieldType = field.getType();
         String property = field.getName();
+        String temp = "INTERNAL_TEMP_OBJECT";
+        builder.append("Object ").append(temp).append(" = null;\n");
         if (fieldType.equals(cp.get(File.class.getName()))) {
             String wrapperName = property + "wrapper";
             builder.append(createTrace(String.format("Handle File type property '%s'", property)));
@@ -382,12 +386,13 @@ public final class ManipulationUtils {
             CtPrimitiveType primitiveType = (CtPrimitiveType) fieldType;
             String wrapperName = primitiveType.getWrapperName();
             builder.append("elements.add(new OpenEngSBModelEntry(\"").append(property).append("\", ");
-            builder.append(wrapperName).append(".valueOf(").append(getPropertyGetter(property, wrapperName));
+            builder.append(wrapperName).append(".valueOf(").append(property);
             builder.append("), ").append(wrapperName).append(".class));\n");
         } else {
             builder.append(createTrace(String.format("Handle property '%s'", property)));
+            builder.append(temp).append(" = ").append(getPropertyGetter(property, fieldType.getName())).append(";\n");
             builder.append("elements.add(new OpenEngSBModelEntry(\"");
-            builder.append(property).append("\", ").append(getPropertyGetter(property, fieldType.getName()));
+            builder.append(property).append("\", ").append(temp);
             builder.append(", ").append(fieldType.getName()).append(".class));\n");
         }
         return builder.toString();

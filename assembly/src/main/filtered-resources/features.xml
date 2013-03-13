@@ -139,7 +139,7 @@
     <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.fastinfoset/${fastinfoset.version}</bundle>
     <bundle start-level='20'>mvn:com.google.guava/guava/${guava.version}</bundle>
     <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.jsch/${jsch.wrapped.version}</bundle>
-    <bundle start-level='20'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.javassist/${javassist.version}</bundle>
+    <bundle start-level='20'>mvn:org.javassist/javassist/${javassist.version}</bundle>
     <!-- Graph DB -->
     <bundle start-level='20'>mvn:com.orientechnologies/orient-commons/${orientdb.version}</bundle>
     <bundle start-level='20'>mvn:com.orientechnologies/orientdb-core/${orientdb.version}</bundle>
