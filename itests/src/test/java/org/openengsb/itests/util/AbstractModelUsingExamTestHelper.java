@@ -42,9 +42,6 @@ public class AbstractModelUsingExamTestHelper extends AbstractExamTestHelper {
         if (providerInstalled) {
             return;
         }
-        String delegationHeader =
-            String.format("%s-%s", org.openengsb.labs.delegation.service.Constants.PROVIDED_CLASSES_HEADER,
-                org.openengsb.core.api.Constants.DELEGATION_CONTEXT_MODELS);
         TinyBundle providerTinyBundle =
             bundle()
                 .add(TestModel.class)
@@ -57,7 +54,6 @@ public class AbstractModelUsingExamTestHelper extends AbstractExamTestHelper {
                 .set(Constants.IMPORT_PACKAGE,
                     "org.openengsb.core.api.model, org.osgi.framework, org.slf4j, "
                             + "org.openengsb.labs.delegation.service")
-                .set(delegationHeader, "org.openengsb.itests.exam.models.*")
                 .set(org.openengsb.core.api.Constants.PROVIDE_MODELS_HEADER, "true");
         Bundle providerBundle =
             getBundleContext().installBundle("test://testlocation/test.provider.jar", providerTinyBundle.build());
